@@ -20,6 +20,6 @@ public class Identity : MonoBehaviour
 
     public virtual void Hit()
     {
-        Debug.Log("hit");
+        Debug.Log ("hit");
     }
 }
