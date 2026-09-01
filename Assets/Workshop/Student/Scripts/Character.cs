@@ -12,32 +12,57 @@ public class Character : Identity
     public int attackPoint;
     protected bool isFreeze;
     //OOPMapGenerator mapGenerator;
-    private bool isAlive;
+    protected bool isAlive;
+
+    protected void GetRemainEnergy()
+    {
+        Debug.Log(Name + " : " + energy);
+    }
 
     public virtual void Move(Vector2 direction)
     {
+        if (isFreeze == true)
+        {
+            GetComponent<SpriteRenderer>().color = Color.white;
+            isFreeze = false;
+            return;
+        }
         int toX = (int)(positionX + direction.x);
         int toY = (int)(positionY + direction.y);
+
         if (HasPlacement(toX, toY) == true)
         {
-           if (IsDemonWalls(toX, toY))
+            if (IsDemonWalls(toX, toY))
             {
                 mapGenerator.walls[toX, toY].Hit();
             }
-           else if (IsPotion (toX, toY))
+            else if (IsPotion(toX, toY))
             {
                 mapGenerator.potions[toX, toY].Hit();
                 positionX = toX;
-                positionY = toY;   
-                transform.position = new Vector2(positionX, positionY);
-                TakeDamage(1);
+                positionY = toY;
+                transform.position = new Vector3(positionX, positionY, 0);
+            }
+            else if (IsPotionBonus(toX, toY))
+            {
+                mapGenerator.potions[toX, toY].Hit();
+                positionX = toX;
+                positionY = toY;
+                transform.position = new Vector3(positionX, positionY, 0);
+            }
+            else if (IsExit(toX, toY))
+            {
+                mapGenerator.Exit.Hit();
+                positionX = toX;
+                positionY = toY;
+                transform.position = new Vector3(positionX, positionY, 0);
             }
         }
         else
         {
             positionX = toX;
             positionY = toY;
-            transform.position = new Vector2(positionX, positionY);
+            transform.position = new Vector3(positionX, positionY, 0);
             TakeDamage(1);
         }
     }
@@ -45,7 +70,7 @@ public class Character : Identity
     public virtual void TakeDamage(int Damage)
     {
         energy -= Damage;
-        Debug.Log("Current Energy : " + energy);
+        Debug.Log(Name + "Current Energy : " + energy);
         CheckDead();
     }
     public virtual void TakeDamage(int Damage, bool freeze)
@@ -53,7 +78,7 @@ public class Character : Identity
         energy -= Damage;
         isFreeze = freeze;
         GetComponent<SpriteRenderer>().color = Color.blue;
-        Debug.Log("Current Energy : " + energy);
+        Debug.Log(Name + "Current Energy : " + energy);
         Debug.Log("you is Freeze");
         CheckDead();
     }
@@ -95,28 +120,34 @@ public class Character : Identity
     {
         string mapData = mapGenerator.GetMapData(x, y);
         return mapData != mapGenerator.empty;
-        return false;
+        // return false;
     }
 
     public bool IsDemonWalls(int x, int y)
     {
         string mapData = mapGenerator.GetMapData(x, y);
         return mapData == mapGenerator.demonWall;
-        return false;
+        // return false;
     }
 
     public bool IsPotion(int x, int y)
     {
-         string mapData = mapGenerator.GetMapData(x, y);
-         return mapData == mapGenerator.potion;
-        return false;
+        string mapData = mapGenerator.GetMapData(x, y);
+        return mapData == mapGenerator.potion;
+        // return false;
+    }
+
+    public bool IsPotionBonus(int x, int y)
+    {
+        var mapData = mapGenerator.GetMapData(x, y);
+        return mapData == mapGenerator.potion;
     }
 
     public bool IsExit(int x, int y)
     {
         string mapData = mapGenerator.GetMapData(x, y);
         return mapData == mapGenerator.exit;
-        return false;
+        // return false;
     }
 
     #endregion
